@@ -25,8 +25,7 @@ public class UserServiceDelegateImpl implements UserServiceDelegate {
 		HttpHeaders headrs = new HttpHeaders();
 		headrs.set("Authorization", token);
 		HttpEntity<Boolean> entity = new HttpEntity<Boolean>(headrs);
-		ResponseEntity<Boolean> response = restTemplate.exchange("http://api-gateway/olx-auth/user/token/validate/", HttpMethod.GET, entity, Boolean.class);
-		return response;
+		return restTemplate.exchange("http://api-gateway/olx-auth/user/token/validate/", HttpMethod.GET, entity, Boolean.class);
 	}
 
 	@Override
@@ -35,8 +34,7 @@ public class UserServiceDelegateImpl implements UserServiceDelegate {
 		HttpHeaders headrs = new HttpHeaders();
 		headrs.set("Authorization", authToken);
 		HttpEntity<User> entity = new HttpEntity<User>(headrs);
-		ResponseEntity<User> response = restTemplate.exchange("http://api-gateway/olx-auth/user/", HttpMethod.GET, entity, User.class);
-		return response;
+		return restTemplate.exchange("http://api-gateway/olx-auth/user/", HttpMethod.GET, entity, User.class);
 	}
 	
 	public ResponseEntity<Boolean> fallbackIsValidUser(String token, Exception exception ) {

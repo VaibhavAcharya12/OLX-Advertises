@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +32,6 @@ public class OlxAdvertisesApplication {
 	public Docket getCustomizedDocket() {
 		return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.basePackage("com.olx"))
 				.paths(PathSelectors.ant("/olx-advertise/**"))
-		//		.paths(PathSelectors.any())
 				.build()
 				.apiInfo(getApiInfo());
 	}

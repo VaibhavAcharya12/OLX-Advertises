@@ -3,44 +3,21 @@ package com.olx.dto;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import javax.validation.constraints.NotNull;
-
 public class Advertises {
 	private int id;
-	@NotNull
 	private String title;
 	private double price;
-	@NotNull
 	private int categoryId;
 	private String description;
 	private String username;
 	private LocalDateTime createdDate;
 	private LocalDateTime modifiedDate;
-	@NotNull
 	private int statusId;
 	private String postedBy;
 	private String category;
 	private String status;
 
 	public Advertises() {
-	}
-
-	public Advertises(int id, String title, double price, int categoryId, String description, String username,
-			LocalDateTime createdDate, LocalDateTime modifiedDate, int statusId, String postedBy, String category,
-			String status) {
-		super();
-		this.id = id;
-		this.title = title;
-		this.price = price;
-		this.categoryId = categoryId;
-		this.description = description;
-		this.username = username;
-		this.createdDate = createdDate;
-		this.modifiedDate = modifiedDate;
-		this.statusId = statusId;
-		this.postedBy = postedBy;
-		this.category = category;
-		this.status = status;
 	}
 
 	public String getStatus() {

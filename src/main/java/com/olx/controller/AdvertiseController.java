@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,14 +36,14 @@ public class AdvertiseController {
 	@PostMapping(value = "/advertise", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 	@ApiOperation(value = "Create New Advertise", notes = "Creates a new advertise for loged in User")
 	public ResponseEntity<Advertises> createAdverties(@RequestHeader("Authorization") String authToken,
-			@RequestBody Advertises request) throws Exception {
+			@RequestBody Advertises request)  {
 		return new ResponseEntity<>(advertiseService.createAdverties(authToken, request), HttpStatus.CREATED);
 	}
 
 	@PutMapping(value = "/advertise/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 	@ApiOperation(value = "Update Advertise", notes = "Updates existing advertise by user")
 	public ResponseEntity<Advertises> updateAdverties(@RequestHeader("Authorization") String authToken,
-			@RequestBody Advertises request, @PathVariable("id") int id) throws Exception {
+			@RequestBody Advertises request, @PathVariable("id") int id)  {
 		return new ResponseEntity<>(advertiseService.updateAdverties(authToken, request, id), HttpStatus.OK);
 
 	}
@@ -52,7 +51,7 @@ public class AdvertiseController {
 	@GetMapping(value = "/user/advertise", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 	@ApiOperation(value = "Get Advertisement List", notes = "Gives list of advertise posted by the user")
 	public ResponseEntity<List<Advertises>> getAllAdvertisementsByUser(@RequestHeader("Authorization") String authToken)
-			throws Exception {
+			 {
 		return new ResponseEntity<>(advertiseService.getAllAdvertisementsByUser(authToken), HttpStatus.OK);
 
 	}
@@ -60,7 +59,7 @@ public class AdvertiseController {
 	@GetMapping(value = "/user/advertise/{advertiseId}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 	@ApiOperation(value = "Get Advertise by advertiseId ", notes = "Returns Advertises Posted by the User")
 	public ResponseEntity<Advertises> getAdvertisementsByUser(@RequestHeader("Authorization") String authToken,
-			@PathVariable("advertiseId") int advertiseId) throws Exception {
+			@PathVariable("advertiseId") int advertiseId)  {
 		return new ResponseEntity<>(advertiseService.getAdvertisementsByUser(authToken, advertiseId), HttpStatus.OK);
 
 	}

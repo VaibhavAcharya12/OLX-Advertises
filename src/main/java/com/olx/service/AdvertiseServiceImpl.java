@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -20,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 
 import com.olx.client.MasterDataServiceDelegate;
 import com.olx.client.UserServiceDelegate;
@@ -29,10 +27,13 @@ import com.olx.dto.Category;
 import com.olx.dto.Status;
 import com.olx.dto.User;
 import com.olx.entity.AdvertisesEntity;
-import com.olx.exception.InvailidTokenException;
+import com.olx.exception.InvalidAuthTokenException;
+import com.olx.exception.InvalidDateRangeException;
 import com.olx.exception.InvalidIdException;
+import com.olx.exception.InvalidOnDateException;
 import com.olx.exception.UnauthorizedUserException;
 import com.olx.repository.AdvertisesRepository;
+import com.olx.util.Constants;
 
 @Service
 public class AdvertiseServiceImpl implements AdvertiseService {
@@ -64,7 +65,7 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 			advertises.setStatus(status.getStatus());
 			return advertises;
 		} else {
-			throw new  InvailidTokenException("Invalid token passed");
+			throw new  InvalidAuthTokenException("Invalid token passed");
 		}
 
 	}
@@ -76,7 +77,7 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 			Optional<AdvertisesEntity> entity = advertisesRepository.findById(id);
 			if (entity.isPresent()) {
 				User user = userServiceDelegate.getUserInformation(authToken).getBody();
-				if(entity.get().getUserName().equals(user.getUserName()) || user.getRoles().contains("ADMIN")) {
+				if(entity.get().getUserName().equals(user.getUserName()) || user.getRoles().contains(Constants.ADMIN)) {
 					Category category = masterDataServiceDelegate.getCategoryById(advertises.getCategoryId()).getBody();
 					Status status = masterDataServiceDelegate.getStatusById(advertises.getStatusId()).getBody();
 					advertises.setModifiedDate(LocalDateTime.now());
@@ -88,12 +89,18 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 					advertises.setCategory(category.getCategory());
 					advertises.setStatus(status.getStatus()); 
 					return advertises;
-				}else throw new  UnauthorizedUserException("You don't have permission to perform this operation"); 
+				}else {
+					throw new  UnauthorizedUserException("You don't have permission to perform this operation");
+				}
 
-			} else
+			} else {
 				throw new InvalidIdException("Invailid Id" + id);
-		} else
-			throw new InvailidTokenException("Invalid token passed");
+			}
+				
+		} else {
+			throw new InvalidAuthTokenException("Invalid token passed");
+		}
+			
 	}
 
 	@Override
@@ -116,7 +123,7 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 			});
 			return advertieses;
 		} else {
-			throw new InvailidTokenException("Invalid token passed");
+			throw new InvalidAuthTokenException("Invalid token passed");
 		}
 	}
 
@@ -143,7 +150,7 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 			Optional<AdvertisesEntity> advertisesEntity = advertisesRepository.findById(advertiseId);
 			if (advertisesEntity.isPresent()) {
 				User user = userServiceDelegate.getUserInformation(authToken).getBody();
-				if(advertisesEntity.get().getUserName().equals(user.getUserName()) || user.getRoles().contains("ADMIN")) {
+				if(advertisesEntity.get().getUserName().equals(user.getUserName()) || user.getRoles().contains(Constants.ADMIN)) {
 					Advertises advts = convertAdvertisesEntitytoAdvertisesDTO(advertisesEntity.get());
 					Category category = masterDataServiceDelegate.getCategoryById(advts.getCategoryId()).getBody();
 					Status status = masterDataServiceDelegate.getStatusById(advts.getStatusId()).getBody();
@@ -155,10 +162,13 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 				else {
 					throw new  UnauthorizedUserException("You don't have permission to perform this operation"); 
 				}
-			} else
+			} else {
 				throw new InvalidIdException("Invailid advertiseId " + advertiseId);
-		} else
-			throw new InvailidTokenException("Invalid token passed");
+			}
+				
+		} else {
+			throw new InvalidAuthTokenException("Invalid token passed");
+		}
 	}
 
 	@Override
@@ -168,15 +178,23 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 			Optional<AdvertisesEntity> advertisesEntity = advertisesRepository.findById(advertiseId);
 			if (advertisesEntity.isPresent()) {
 				User user = userServiceDelegate.getUserInformation(authToken).getBody();
-				if(advertisesEntity.get().getUserName().equals(user.getUserName()) || user.getRoles().contains("ADMIN")) {
+				if(advertisesEntity.get().getUserName().equals(user.getUserName()) || user.getRoles().contains(Constants.ADMIN)) {
 					advertisesRepository.delete(advertisesEntity.get());
 					return true;
 				}
-				else throw new  UnauthorizedUserException("You don't have permission to perform this operation"); 
+				else {
+					throw new  UnauthorizedUserException("You don't have permission to perform this operation");
+				}
+					 
 			}
-			else throw new InvalidIdException("Invailid advertiseId " + advertiseId);
+			else { 
+				throw new InvalidIdException("Invailid advertiseId " + advertiseId);
+			}
 		}
-		else throw new InvailidTokenException("Invalid token passed");
+		else {
+			throw new InvalidAuthTokenException("Invalid token passed");
+		}
+			
 	}
 
 	@Override
@@ -186,8 +204,8 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 		Root<AdvertisesEntity> rootEntity = criteriaQuery.from(AdvertisesEntity.class);
 		Predicate predicateSearchText = criteriaBuilder.and();
 		if (searchText != null && !"".equals(searchText)) {
-			Predicate predicateTitle = criteriaBuilder.like(rootEntity.get("title"), "%" + searchText + "%");
-			Predicate predicateDescription = criteriaBuilder.like(rootEntity.get("description"),
+			Predicate predicateTitle = criteriaBuilder.like(rootEntity.get(Constants.ADMIN), "%" + searchText + "%");
+			Predicate predicateDescription = criteriaBuilder.like(rootEntity.get(Constants.DESCRIPTION),
 					"%" + searchText + "%");
 			predicateSearchText = criteriaBuilder.or(predicateTitle, predicateDescription);
 		}
@@ -207,7 +225,7 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 			}
 
 		}
-		  throw new InvailidTokenException("Invalid Id passed");
+		  throw new InvalidAuthTokenException("Invalid Id passed");
 	}
 
 	private AdvertisesEntity convertAdvertisesDTOtoAdvertisesEntity(Advertises advertises) {
@@ -224,6 +242,7 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 	public List<Advertises> filterAdvertisements(String searchText, int categoryId, String postedBy,
 			String dateCondition, LocalDate onDate, LocalDate fromDate, LocalDate toDate, String sortBy,
 			int startIndex, int records) {
+		validatefileds(onDate,fromDate,toDate);
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<AdvertisesEntity> criteriaQuery = criteriaBuilder.createQuery(AdvertisesEntity.class);
 		Root<AdvertisesEntity> rootEntity = criteriaQuery.from(AdvertisesEntity.class);
@@ -233,33 +252,33 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 		Predicate predicateCategoryId = criteriaBuilder.and();
 		Predicate predicatePostedBy = criteriaBuilder.and();
 		if (searchText != null && !"".equals(searchText)) {
-			Predicate predicateTitle = criteriaBuilder.like(rootEntity.get("title"), "%" + searchText + "%");
-			Predicate predicateDescription = criteriaBuilder.like(rootEntity.get("description"),
+			Predicate predicateTitle = criteriaBuilder.like(rootEntity.get(Constants.TITLE), "%" + searchText + "%");
+			Predicate predicateDescription = criteriaBuilder.like(rootEntity.get(Constants.DESCRIPTION),
 					"%" + searchText + "%");
 			predicateSearchText = criteriaBuilder.or(predicateTitle, predicateDescription);
 		}
 		if(postedBy!=null && !"".equals(postedBy)) {
-			predicatePostedBy = criteriaBuilder.equal(rootEntity.get("postedBy"), postedBy);
+			predicatePostedBy = criteriaBuilder.equal(rootEntity.get(Constants.POSTED_BY), postedBy);
 		}
 		if(categoryId!=0) {
-			predicateCategoryId = criteriaBuilder.equal(rootEntity.get("categoryId"), categoryId);
+			predicateCategoryId = criteriaBuilder.equal(rootEntity.get(Constants.CATEGORY_ID), categoryId);
 		}
 		
 		if (dateCondition != null && !"".equalsIgnoreCase(dateCondition)) {
-			if (dateCondition.equalsIgnoreCase("equals")) {
-				Predicate predicateEquals = criteriaBuilder.equal(rootEntity.get("createdDate"), onDate.atStartOfDay());
+			if (dateCondition.equalsIgnoreCase(Constants.EQUALS)) {
+				Predicate predicateEquals = criteriaBuilder.equal(rootEntity.get(Constants.CREATED_DATE), onDate.atStartOfDay());
 				predicateDateCondition = criteriaBuilder.and(predicateEquals);
 			}
-			if(dateCondition.equalsIgnoreCase("greaterthan")) {
-				Predicate predicateGreterthan = criteriaBuilder.greaterThan(rootEntity.get("createdDate"), fromDate.atStartOfDay());
+			if(dateCondition.equalsIgnoreCase(Constants.GREATER_THAN)) {
+				Predicate predicateGreterthan = criteriaBuilder.greaterThan(rootEntity.get(Constants.CREATED_DATE), fromDate.atStartOfDay());
 				predicateDateCondition = criteriaBuilder.and(predicateGreterthan);
 			}
-			if(dateCondition.equalsIgnoreCase("lessthan")) {
-				Predicate predicateLessthan = criteriaBuilder.lessThan(rootEntity.get("createdDate"), fromDate.atStartOfDay());
+			if(dateCondition.equalsIgnoreCase(Constants.LESS_THAN)) {
+				Predicate predicateLessthan = criteriaBuilder.lessThan(rootEntity.get(Constants.CREATED_DATE), fromDate.atStartOfDay());
 				predicateDateCondition = criteriaBuilder.and(predicateLessthan);
 			}
-			if(dateCondition.equalsIgnoreCase("between")) {
-				Predicate predicateBetween = criteriaBuilder.between(rootEntity.get("createdDate"), fromDate.atStartOfDay(), toDate.atStartOfDay());
+			if(dateCondition.equalsIgnoreCase(Constants.BETWEEN)) {
+				Predicate predicateBetween = criteriaBuilder.between(rootEntity.get(Constants.CREATED_DATE), fromDate.atStartOfDay(), toDate.atStartOfDay());
 				predicateDateCondition = criteriaBuilder.and(predicateBetween);
 			}
 		}
@@ -273,6 +292,19 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 		typedQuery.setMaxResults(records);
 		List<AdvertisesEntity> advertiseEntityList = typedQuery.getResultList(); // database call
 		return convertEntityListIntoDTOList(advertiseEntityList);
+	}
+
+	private void validatefileds(LocalDate onDate, LocalDate fromDate, LocalDate toDate) {
+		boolean isFromDateAndToDatePresent = Optional.ofNullable(fromDate).isPresent() && Optional.ofNullable(fromDate).isPresent();
+		boolean isOnDatePresent = Optional.ofNullable(fromDate).isPresent();
+		if(isOnDatePresent && onDate.isAfter(LocalDate.now())) {
+			throw new InvalidOnDateException("Date should be past date or present date");
+		}
+		if(isFromDateAndToDatePresent && fromDate.isAfter(toDate) || toDate.isBefore(fromDate)) {
+			throw new InvalidDateRangeException();
+		}
+		
+		
 	}
 
 	private List<Advertises> convertEntityListIntoDTOList(List<AdvertisesEntity> advertiseEntityList) {
