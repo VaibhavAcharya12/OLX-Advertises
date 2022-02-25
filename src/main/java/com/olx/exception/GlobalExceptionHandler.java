@@ -13,8 +13,7 @@ import com.olx.util.Constants;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	
-	@ExceptionHandler(value= {InvalidIdException.class, StatusNotFoundException.class, CategoryNotFoundException.class, 
-			InvalidAuthTokenException.class,InvalidDateRangeException.class})
+	@ExceptionHandler(value= {InvalidIdException.class, StatusNotFoundException.class, CategoryNotFoundException.class,InvalidDateRangeException.class})
 	public ResponseEntity<Object> handleBadRequest(RuntimeException exception, WebRequest request){
 		return handleExceptionInternal(exception, "\"error\": \""+ exception.toString(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 		

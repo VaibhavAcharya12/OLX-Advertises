@@ -296,11 +296,11 @@ public class AdvertiseServiceImpl implements AdvertiseService {
 
 	private void validatefileds(LocalDate onDate, LocalDate fromDate, LocalDate toDate) {
 		boolean isFromDateAndToDatePresent = Optional.ofNullable(fromDate).isPresent() && Optional.ofNullable(fromDate).isPresent();
-		boolean isOnDatePresent = Optional.ofNullable(fromDate).isPresent();
+		boolean isOnDatePresent = Optional.ofNullable(onDate).isPresent();
 		if(isOnDatePresent && onDate.isAfter(LocalDate.now())) {
 			throw new InvalidOnDateException("Date should be past date or present date");
 		}
-		if(isFromDateAndToDatePresent && fromDate.isAfter(toDate) || toDate.isBefore(fromDate)) {
+		if(isFromDateAndToDatePresent && (fromDate.isAfter(toDate) || toDate.isBefore(fromDate))) {
 			throw new InvalidDateRangeException();
 		}
 		
